@@ -17,12 +17,12 @@
 
 ## 数据规模
 
-| 维度 | 覆盖率 |
-|------|--------|
+| 维度   | 覆盖率 |
+| ------ | ------ |
 | 总字数 | 14,387 |
-| 五行 | 100% |
-| 部首 | 77.8% |
-| 结构 | 29.1% |
+| 五行   | 100%   |
+| 部首   | 77.8%  |
+| 结构   | 29.1%  |
 
 ## 快速开始
 
@@ -36,6 +36,18 @@ npm run serve
 
 浏览器打开 http://localhost:8080 即可使用。
 
+## 部署到服务器
+
+项目包含自动化部署脚本，可一键部署到 Azure VM（Nginx 静态托管）：
+
+```bash
+./deploy.sh
+```
+
+脚本会自动检查并安装 Nginx、配置 `/name-tool` 路径、同步文件。
+
+在线访问：http://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool
+
 ## 重新爬取数据
 
 如需更新汉字数据：
@@ -46,20 +58,17 @@ npm run crawl
 
 爬取耗时约 3 分钟，结果保存至 `data/characters.json`。
 
-## 技术栈
-
-- **前端**：原生 HTML / CSS / JavaScript（单文件，无框架依赖）
-- **爬虫**：Node.js + [cheerio](https://github.com/cheeriojs/cheerio)
-- **数据**：静态 JSON，纯前端过滤，无需后端服务
-
 ## 项目结构
 
 ```
 ├── index.html              # 前端页面（含全部 CSS/JS）
 ├── crawl.js                # 数据爬虫脚本
+├── deploy.sh               # 自动化部署脚本（Azure VM）
 ├── data/
 │   └── characters.json     # 爬取的汉字数据（14,387 条）
+├── demo.png                # 预览截图
 ├── package.json
+├── CLAUDE.md               # AI 上下文文件
 └── README.md
 ```
 

@@ -12,6 +12,16 @@
 - **爬虫**：Node.js + cheerio，脚本为 `crawl.js`
 - **数据**：`data/characters.json`，14,387 条汉字记录
 - **运行**：`npx http-server . -p 8080 -c-1`
+- **部署**：`deploy.sh` 自动化部署到 Azure VM（Nginx 静态托管）
+
+## 部署信息
+
+- **VM**：Azure East Asia，`ssh lvxiaoxin96@20.2.216.149`
+- **DNS**：`tool-of-lvxiaoxin.eastasia.cloudapp.azure.com`
+- **路径**：`/name-tool` → 服务器 `/var/www/name-tool/`
+- **Web 服务**：Nginx，location alias 配置
+- **部署脚本**：`deploy.sh`，自动检查/安装 Nginx、配置路由、rsync 同步文件
+- **在线地址**：http://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool
 
 ## 常用命令
 
@@ -19,6 +29,7 @@
 npm install          # 安装依赖（cheerio）
 npm run crawl        # 重新爬取数据（约 3 分钟）
 npm run serve        # 启动本地服务 http://localhost:8080
+./deploy.sh          # 部署到 Azure VM
 ```
 
 ## 项目结构
@@ -26,6 +37,7 @@ npm run serve        # 启动本地服务 http://localhost:8080
 ```
 index.html           # 前端页面（全部 CSS/JS 内联）
 crawl.js             # 三阶段爬虫（五行→结构→部首）
+deploy.sh            # Azure VM 自动化部署脚本
 data/characters.json # 爬取的汉字数据 JSON
 package.json         # 项目配置
 ```
@@ -55,6 +67,7 @@ package.json         # 项目配置
 3. **Phase 3 - 部首**：284 个部首页（含分页） → 映射 char→radical
 
 关键点：
+
 - 所有子页面都有**分页**（`下一页`链接），必须跟踪所有页面
 - 使用 `visited` Set 防止分页死循环
 - 链接文本解析需处理两种格式：`"rén人"`（无空格）和 `"rén 人"`（有空格）
@@ -83,3 +96,4 @@ package.json         # 项目配置
 - 所有中文注释和输出
 - 前端全部内联在 `index.html`，不拆分文件
 - 数据变更需重新运行 `npm run crawl`
+- 前端或数据变更后运行 `./deploy.sh` 同步到线上
