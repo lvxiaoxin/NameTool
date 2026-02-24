@@ -1,0 +1,12 @@
+{
+  "name": "name-tool",
+  "version": "1.0.0",
+  "description": "汉字多维筛选工具 - 支持五行、笔画、结构、部首、拼音多重筛选",
+  "scripts": {
+    "crawl": "node crawl.js",
+    "serve": "npx http-server . -p 8080 -c-1"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
