@@ -451,7 +451,7 @@ async function main() {
   // 保存
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   const outputPath = path.join(DATA_DIR, 'characters.json');
-  fs.writeFileSync(outputPath, JSON.stringify(result, null, 2), 'utf-8');
+  fs.writeFileSync(outputPath, JSON.stringify(result), 'utf-8');
 
   // ── 统计 ──
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);

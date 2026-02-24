@@ -53,6 +53,22 @@ if ! grep -q "location /name-tool" "$NGINX_CONF" 2>/dev/null; then
 else
   echo "  ✓ Nginx 已配置 /name-tool"
 fi
+
+# 确保 gzip 压缩已启用（对 JSON 等静态资源）
+NGINX_MAIN="/etc/nginx/nginx.conf"
+if grep -q '# gzip_types' "$NGINX_MAIN" 2>/dev/null; then
+  echo "  🔧 启用 gzip 压缩..."
+  sudo sed -i 's/# gzip_vary on;/gzip_vary on;/' "$NGINX_MAIN"
+  sudo sed -i 's/# gzip_proxied any;/gzip_proxied any;/' "$NGINX_MAIN"
+  sudo sed -i 's/# gzip_comp_level 6;/gzip_comp_level 6;/' "$NGINX_MAIN"
+  sudo sed -i 's/# gzip_buffers 16 8k;/gzip_buffers 16 8k;/' "$NGINX_MAIN"
+  sudo sed -i 's/# gzip_http_version 1.1;/gzip_http_version 1.1;/' "$NGINX_MAIN"
+  sudo sed -i 's/# gzip_types text\/plain/gzip_types text\/plain/' "$NGINX_MAIN"
+  sudo nginx -t && sudo systemctl reload nginx
+  echo "  ✓ gzip 压缩已启用"
+else
+  echo "  ✓ gzip 已启用"
+fi
 SETUP
 
 # ─── 2. 同步文件 ───
