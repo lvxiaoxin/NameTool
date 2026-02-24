@@ -16,10 +16,14 @@
 
 ## 部署信息
 
+- **VM**：Azure East Asia，`ssh lvxiaoxin96@20.2.216.149`
+- **DNS**：`tool-of-lvxiaoxin.eastasia.cloudapp.azure.com`
 - **路径**：`/name-tool` → 服务器 `/var/www/name-tool/`
 - **Web 服务**：Nginx，location alias 配置
-- **部署脚本**：`deploy.sh`，自动检查/安装 Nginx、配置路由、rsync 同步文件
-- **在线地址**：http://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool
+- **HTTPS**：Let's Encrypt 证书（certbot 自动续期）
+- **gzip**：已启用，JSON 压缩率 ~93%（2.2MB → ~175KB）
+- **部署脚本**：`deploy.sh`，自动检查/安装 Nginx、配置路由、启用 gzip、rsync 同步文件
+- **在线地址**：https://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool
 
 ## 常用命令
 
