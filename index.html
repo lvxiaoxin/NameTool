@@ -138,6 +138,11 @@
       border-color: #00897b;
     }
 
+    .chip.lucky-chip.active {
+      background: #e65100;
+      border-color: #e65100;
+    }
+
     /* ── Inputs ── */
     .range-inputs {
       display: flex;
@@ -439,6 +444,17 @@
             </div>
           </div>
         </div>
+
+        <!-- 吉凶寓意 -->
+        <div class="filter-row">
+          <div class="filter-label">吉凶</div>
+          <div class="filter-body">
+            <div class="chips" id="lucky-chips">
+              <span class="chip lucky-chip" data-value="1" onclick="toggleChip(this)">吉利字</span>
+              <span class="chip lucky-chip" data-value="0" onclick="toggleChip(this)">非吉利字</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Actions -->
@@ -556,6 +572,7 @@
       const structs = getActiveChipValues('struct-chips');
       const tones = getActiveChipValues('tone-chips').map(Number);
       const commonVals = getActiveChipValues('common-chips');
+      const luckyVals = getActiveChipValues('lucky-chips');
       const strokeMin = parseInt(document.getElementById('stroke-min').value) || 0;
       const strokeMax = parseInt(document.getElementById('stroke-max').value) || 999;
       const radical = document.getElementById('radical-select').value;
@@ -573,6 +590,10 @@
         if (commonVals.length > 0) {
           const isCommon = c.common ? '1' : '0';
           if (!commonVals.includes(isCommon)) return false;
+        }
+        if (luckyVals.length > 0) {
+          const isLucky = c.lucky ? '1' : '0';
+          if (!luckyVals.includes(isLucky)) return false;
         }
         return true;
       });
