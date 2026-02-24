@@ -16,8 +16,6 @@
 
 ## 部署信息
 
-- **VM**：Azure East Asia，`ssh lvxiaoxin96@20.2.216.149`
-- **DNS**：`tool-of-lvxiaoxin.eastasia.cloudapp.azure.com`
 - **路径**：`/name-tool` → 服务器 `/var/www/name-tool/`
 - **Web 服务**：Nginx，location alias 配置
 - **部署脚本**：`deploy.sh`，自动检查/安装 Nginx、配置路由、rsync 同步文件

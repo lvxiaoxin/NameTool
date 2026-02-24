@@ -2,6 +2,8 @@
 
 一个支持多维度筛选的汉字查询工具，数据来源于 [zidian.txcx.com](https://zidian.txcx.com/)。适用于起名、书法选字等场景。
 
+Online Demo: http://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool
+
 ## 预览
 
 ![demo](demo.png)
@@ -45,8 +47,6 @@ npm run serve
 ```
 
 脚本会自动检查并安装 Nginx、配置 `/name-tool` 路径、同步文件。
-
-在线访问：http://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool
 
 ## 重新爬取数据
 

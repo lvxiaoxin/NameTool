@@ -5,8 +5,8 @@
 set -e
 
 # ─── 配置 ───
-REMOTE_USER="lvxiaoxin96"
-REMOTE_HOST="20.2.216.149"
+REMOTE_USER=""
+REMOTE_HOST=""
 REMOTE_DIR="/var/www/name-tool"
 SSH_TARGET="${REMOTE_USER}@${REMOTE_HOST}"
 SITE_PATH="/name-tool"
@@ -68,7 +68,5 @@ rsync -avz \
 # ─── 3. 完成 ───
 echo ""
 echo "╔══════════════════════════════════════════════════════╗"
-echo "║   ✓ 部署完成！                                       ║"
-echo "╠══════════════════════════════════════════════════════╣"
-echo "║   http://tool-of-lvxiaoxin.eastasia.cloudapp.azure.com/name-tool"
+echo "║   ✓ 部署完成！                                        ║"
 echo "╚══════════════════════════════════════════════════════╝"
