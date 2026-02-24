@@ -133,6 +133,11 @@
       border-color: #ff6f00;
     }
 
+    .chip.common-chip.active {
+      background: #00897b;
+      border-color: #00897b;
+    }
+
     /* ── Inputs ── */
     .range-inputs {
       display: flex;
@@ -423,6 +428,17 @@
             </div>
           </div>
         </div>
+
+        <!-- 是否常用 -->
+        <div class="filter-row">
+          <div class="filter-label">常用</div>
+          <div class="filter-body">
+            <div class="chips" id="common-chips">
+              <span class="chip common-chip" data-value="1" onclick="toggleChip(this)">常用字</span>
+              <span class="chip common-chip" data-value="0" onclick="toggleChip(this)">非常用字</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Actions -->
@@ -539,6 +555,7 @@
       const wuxing = getActiveChipValues('wuxing-chips');
       const structs = getActiveChipValues('struct-chips');
       const tones = getActiveChipValues('tone-chips').map(Number);
+      const commonVals = getActiveChipValues('common-chips');
       const strokeMin = parseInt(document.getElementById('stroke-min').value) || 0;
       const strokeMax = parseInt(document.getElementById('stroke-max').value) || 999;
       const radical = document.getElementById('radical-select').value;
@@ -553,6 +570,10 @@
         if (radical && c.radical !== radical) return false;
         if (pinyin && !c._py.startsWith(pinyin)) return false;
         if (tones.length > 0 && !tones.includes(c._tone)) return false;
+        if (commonVals.length > 0) {
+          const isCommon = c.common ? '1' : '0';
+          if (!commonVals.includes(isCommon)) return false;
+        }
         return true;
       });
 
