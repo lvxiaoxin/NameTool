@@ -5,12 +5,13 @@
  * Phase 1: 爬取五行+笔画子页面 → {字, 拼音, 五行, 笔画数}
  * Phase 2: 爬取结构页面 → 字→结构 映射
  * Phase 3: 爬取部首页面 → 字→部首 映射
- * Phase 4: 合并数据 → data/characters.json
+ * Phase 4: 爬取详情页 → 是否常用 + 吉凶寓意 (enrich.js)
  */
 
 const cheerio = require('cheerio');
 const fs = require('fs');
 const path = require('path');
+const { enrich } = require('./enrich');
 
 const BASE_URL = 'https://zidian.txcx.com';
 const DATA_DIR = path.join(__dirname, 'data');
@@ -469,6 +470,12 @@ async function main() {
   console.log(`  五行分布: ${JSON.stringify(wuxingDist)}`);
   console.log(`  耗时:     ${elapsed}s`);
   console.log(`  输出文件: ${outputPath}`);
+
+  // Phase 4: 从详情页爬取 common 和 lucky
+  await enrich();
+
+  const finalElapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  console.log(`\n  总耗时: ${finalElapsed}s`);
 }
 
 main().catch(e => {
