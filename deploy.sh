@@ -5,8 +5,8 @@
 set -e
 
 # ─── 配置 ───
-REMOTE_USER=""
-REMOTE_HOST=""
+REMOTE_USER="lvxiaoxin96"
+REMOTE_HOST="20.2.216.149"
 REMOTE_DIR="/var/www/name-tool"
 SSH_TARGET="${REMOTE_USER}@${REMOTE_HOST}"
 SITE_PATH="/name-tool"
