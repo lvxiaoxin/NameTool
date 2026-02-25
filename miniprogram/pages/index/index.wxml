@@ -1,0 +1,195 @@
+<!--pages/index/index.wxml-->
+<scroll-view class="container" scroll-y enhanced show-scrollbar="{{false}}"
+  scroll-top="{{scrollTop}}" scroll-with-animation
+  bindscroll="onScroll">
+
+  <!-- Loading -->
+  <view class="loading" wx:if="{{loading}}">
+    <view class="spinner"></view>
+    <text>正在加载汉字数据...</text>
+  </view>
+
+  <!-- Error -->
+  <view class="loading" wx:elif="{{error}}">
+    <text class="error-text">加载失败: {{error}}</text>
+  </view>
+
+  <!-- Main Content -->
+  <block wx:else>
+    <!-- Filter Panel -->
+    <view class="filter-panel">
+
+      <!-- 汉字搜索 -->
+      <view class="filter-row">
+        <text class="filter-label">汉字</text>
+        <view class="filter-body">
+          <input class="text-input" placeholder="输入汉字，如 悦、冰"
+                 value="{{charSearch}}" bindinput="onCharInput" />
+        </view>
+      </view>
+
+      <!-- 五行 -->
+      <view class="filter-row">
+        <text class="filter-label">五行</text>
+        <view class="filter-body">
+          <view class="chips">
+            <view wx:for="{{wuxingOptions}}" wx:key="value"
+                  class="chip wuxing-{{item.key}} {{item.active ? 'active' : ''}}"
+                  data-group="wuxing" data-index="{{index}}"
+                  bindtap="onChipTap">
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 笔画 -->
+      <view class="filter-row">
+        <text class="filter-label">笔画</text>
+        <view class="filter-body">
+          <view class="range-inputs">
+            <input class="num-input" type="number" placeholder="最少"
+                   value="{{strokeMin}}" bindinput="onStrokeMin" />
+            <text class="range-sep">～</text>
+            <input class="num-input" type="number" placeholder="最多"
+                   value="{{strokeMax}}" bindinput="onStrokeMax" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 结构 -->
+      <view class="filter-row">
+        <text class="filter-label">结构</text>
+        <view class="filter-body">
+          <view class="chips">
+            <view wx:for="{{structOptions}}" wx:key="value"
+                  class="chip struct-chip {{item.active ? 'active' : ''}}"
+                  data-group="struct" data-index="{{index}}"
+                  bindtap="onChipTap">
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 部首 -->
+      <view class="filter-row">
+        <text class="filter-label">部首</text>
+        <view class="filter-body">
+          <picker class="picker-input" mode="selector" range="{{radicalOptions}}"
+                  value="{{radicalIndex}}" bindchange="onRadicalChange">
+            <view class="picker-text">{{radicalOptions[radicalIndex] || '不限'}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 拼音 -->
+      <view class="filter-row">
+        <text class="filter-label">拼音</text>
+        <view class="filter-body">
+          <input class="text-input" placeholder="输入拼音，如 yi、yǐ"
+                 value="{{pinyinSearch}}" bindinput="onPinyinInput" />
+        </view>
+      </view>
+
+      <!-- 声调 -->
+      <view class="filter-row">
+        <text class="filter-label">声调</text>
+        <view class="filter-body">
+          <view class="chips">
+            <view wx:for="{{toneOptions}}" wx:key="value"
+                  class="chip tone-chip {{item.active ? 'active' : ''}}"
+                  data-group="tone" data-index="{{index}}"
+                  bindtap="onChipTap">
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 常用 -->
+      <view class="filter-row">
+        <text class="filter-label">常用</text>
+        <view class="filter-body">
+          <view class="chips">
+            <view wx:for="{{commonOptions}}" wx:key="value"
+                  class="chip common-chip {{item.active ? 'active' : ''}}"
+                  data-group="common" data-index="{{index}}"
+                  bindtap="onChipTap">
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 吉凶 -->
+      <view class="filter-row">
+        <text class="filter-label">吉凶</text>
+        <view class="filter-body">
+          <view class="chips">
+            <view wx:for="{{luckyOptions}}" wx:key="value"
+                  class="chip lucky-chip {{item.active ? 'active' : ''}}"
+                  data-group="lucky" data-index="{{index}}"
+                  bindtap="onChipTap">
+              {{item.label}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Actions -->
+    <view class="actions">
+      <view class="result-info">
+        <text>共找到 </text>
+        <text class="result-count">{{resultCount}}</text>
+        <text> 个汉字</text>
+      </view>
+      <view class="btn btn-reset" bindtap="onReset">重置筛选</view>
+    </view>
+
+    <!-- Results -->
+    <view class="results">
+      <view wx:if="{{groups.length === 0}}" class="no-results">
+        <text>没有找到符合条件的汉字，请调整筛选条件</text>
+      </view>
+
+      <view wx:for="{{groups}}" wx:key="strokes" class="stroke-group">
+        <view class="stroke-header {{item.collapsed ? 'collapsed' : ''}}"
+              data-index="{{index}}" bindtap="onToggleGroup">
+          <text class="arrow">▼</text>
+          <text>{{item.strokes}}画</text>
+          <text class="count">({{item.chars.length}}个)</text>
+        </view>
+        <view class="stroke-chars" wx:if="{{!item.collapsed}}">
+          <view wx:for="{{item.chars}}" wx:for-item="c" wx:key="char"
+                class="char-card" data-char="{{c.char}}"
+                bindtap="onCharTap">
+            <text class="char-text">{{c.char}}</text>
+            <text class="char-pinyin">{{c.pinyin}}</text>
+            <view class="char-meta">
+              <text class="tag tag-wuxing tag-wuxing-{{c.wuxingKey}}">{{c.wuxing}}</text>
+              <text wx:if="{{c.radical}}" class="tag tag-radical">{{c.radical}}</text>
+              <text wx:if="{{c.structLabel}}" class="tag tag-struct">{{c.structLabel}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore}}" class="load-more" bindtap="onLoadMore">
+      <text>加载更多 ({{displayedCount}}/{{resultCount}})</text>
+    </view>
+
+    <!-- 底部提示 -->
+    <view class="footer" wx:if="{{groups.length > 0}}">
+      <text class="footer-text">点击汉字可复制</text>
+    </view>
+  </block>
+</scroll-view>
+
+<!-- 回到顶部按钮 -->
+<view class="back-top {{showBackTop ? 'visible' : ''}}" bindtap="onBackTop">
+  <text class="back-top-arrow">↑</text>
+</view>
