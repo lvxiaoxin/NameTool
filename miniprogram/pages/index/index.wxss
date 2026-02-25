@@ -52,6 +52,12 @@
   animation: spin 0.8s linear infinite;
   margin: 0 auto 24rpx;
 }
+.spinner.small {
+  width: 36rpx;
+  height: 36rpx;
+  border-width: 3rpx;
+  margin-bottom: 12rpx;
+}
 @keyframes spin { to { transform: rotate(360deg); } }
 .error-text { color: #e53935; }
 

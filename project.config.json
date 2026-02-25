@@ -1,5 +1,6 @@
 {
   "description": "汉字多维筛选工具 - 微信小程序",
+  "miniprogramRoot": "miniprogram/",
   "packOptions": {
     "ignore": [],
     "include": []

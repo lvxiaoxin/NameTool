@@ -1,13 +1,13 @@
 // pages/index/index.js
-const { stripTones, preprocessChars } = require('../../utils/tone');
-const app = getApp();
+const { stripTones } = require('../../utils/tone');
+const RAW = require('../../data/chars');
+// RAW: [[char, pinyin, _py, _tone, wuxing, strokes, radical, structure, common, lucky], ...]
 
 Page({
   data: {
     loading: true,
     error: null,
 
-    // ── 筛选状态 ──
     charSearch: '',
     strokeMin: '',
     strokeMax: '',
@@ -38,7 +38,6 @@ Page({
       { label: '非吉利字', value: 0, active: false },
     ],
 
-    // ── 结果 ──
     resultCount: 0,
     groups: [],
     hasMore: false,
@@ -47,50 +46,45 @@ Page({
     showBackTop: false,
   },
 
-  // 全量数据（不放进 data 避免 setData 传输）
-  _allChars: [],
-  _filtered: [],    // 当前筛选结果（全量）
+  _allChars: [],   // parsed objects (kept off data to avoid setData overhead)
+  _filtered: [],   // current filter result
   _debounce: null,
-  _PAGE_SIZE: 500,  // 每次渲染的最大字数
-
-  // 五行 → CSS key 映射
+  _PAGE_SIZE: 500,
   _wuxingKeyMap: { '金': 'jin', '木': 'mu', '水': 'shui', '火': 'huo', '土': 'tu' },
 
   onLoad() {
-    app.onDataReady((gd) => {
-      if (gd.error) {
-        this.setData({ loading: false, error: gd.error });
-        return;
-      }
-      this._allChars = preprocessChars(gd.characters);
-      this._initFilters();
-      this._applyFilters();
-      this.setData({ loading: false });
-    });
+    // Parse compact array format into objects
+    this._allChars = RAW.map(r => ({
+      char: r[0], pinyin: r[1], _py: r[2], _tone: r[3],
+      wuxing: r[4], strokes: r[5], radical: r[6],
+      structure: r[7], common: r[8], lucky: r[9],
+    }));
+
+    this._initFilters();
+    this._applyFilters();
+    this.setData({ loading: false });
   },
 
-  // ═══════════ 初始化筛选选项 ═══════════
   _initFilters() {
-    // 结构
     const structSet = new Set();
-    this._allChars.forEach(c => { if (c.structure) structSet.add(c.structure); });
+    const radicalSet = new Set();
+    this._allChars.forEach(c => {
+      if (c.structure) structSet.add(c.structure);
+      if (c.radical) radicalSet.add(c.radical);
+    });
+
     const structOptions = [...structSet].sort().map(s => ({
       label: s.replace('结构', ''),
       value: s,
       active: false,
     }));
-
-    // 部首
-    const radicalSet = new Set();
-    this._allChars.forEach(c => { if (c.radical) radicalSet.add(c.radical); });
     const radicalOptions = ['不限', ...[...radicalSet].sort()];
 
     this.setData({ structOptions, radicalOptions });
   },
 
-  // ═══════════ 事件处理 ═══════════
+  // ---- Event handlers ----
 
-  // chip 点击切换
   onChipTap(e) {
     const { group, index } = e.currentTarget.dataset;
     const key = `${group}Options[${index}].active`;
@@ -141,13 +135,11 @@ Page({
     this._applyFilters();
   },
 
-  // 加载更多
   onLoadMore() {
     if (!this.data.hasMore) return;
     this._renderPage(this.data.displayedCount);
   },
 
-  // 汉字卡片点击 → 复制汉字
   onCharTap(e) {
     const char = e.currentTarget.dataset.char;
     if (char) {
@@ -160,12 +152,10 @@ Page({
     }
   },
 
-  // 回到顶部
   onBackTop() {
     this.setData({ scrollTop: 0 });
   },
 
-  // 滚动监听，控制回到顶部按钮显示
   onScroll(e) {
     const show = e.detail.scrollTop > 800;
     if (show !== this.data.showBackTop) {
@@ -173,7 +163,6 @@ Page({
     }
   },
 
-  // 折叠/展开分组
   onToggleGroup(e) {
     const idx = e.currentTarget.dataset.index;
     const key = `groups[${idx}].collapsed`;
@@ -181,7 +170,8 @@ Page({
     this.setData({ [key]: !current });
   },
 
-  // ═══════════ 筛选逻辑 ═══════════
+  // ---- Local filtering ----
+
   _scheduleFilter() {
     clearTimeout(this._debounce);
     this._debounce = setTimeout(() => this._applyFilters(), 150);
@@ -228,17 +218,14 @@ Page({
 
     this._filtered = filtered;
     this.setData({ resultCount: filtered.length, scrollTop: 0 });
-    // 从头开始渲染第一页
     this._renderPage(0);
   },
 
-  // 渲染一页数据（追加或首次）
   _renderPage(startIdx) {
     const PAGE = this._PAGE_SIZE;
     const slice = this._filtered.slice(startIdx, startIdx + PAGE);
     const isFirst = startIdx === 0;
 
-    // 按笔画分组
     const groupMap = {};
     slice.forEach(c => {
       if (!groupMap[c.strokes]) groupMap[c.strokes] = [];
@@ -248,7 +235,7 @@ Page({
         wuxing: c.wuxing,
         wuxingKey: this._wuxingKeyMap[c.wuxing] || '',
         radical: c.radical || '',
-        structLabel: c.structure ? c.structure.replace('\u7ed3\u6784', '') : '',
+        structLabel: c.structure ? c.structure.replace('结构', '') : '',
       });
     });
 
@@ -265,7 +252,6 @@ Page({
     if (isFirst) {
       groups = newGroups;
     } else {
-      // 追加到已有分组
       groups = [...this.data.groups];
       newGroups.forEach(ng => {
         const existing = groups.find(g => g.strokes === ng.strokes);
