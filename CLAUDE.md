@@ -31,8 +31,8 @@
 
 ### Tab 架构
 
-- **Tab 1「寻字起名」**（`pages/index/index`）：汉字多维筛选 + 选字组名功能
-- **Tab 2「八字分析」**（`pages/analysis/analysis`）：输入生辰→四柱八字→五行分布→喜用神→起名建议
+- **Tab 1「八字分析」**（`pages/analysis/analysis`）：输入生辰→四柱八字→五行分布→喜用神→起名建议
+- **Tab 2「寻字起名」**（`pages/index/index`）：汉字多维筛选 + 选字组名功能
 - **跨 Tab 传参**：八字分析的喜用神通过 `app.globalData.suggestedWuxing`（数组）传递，寻字起名页 `onShow` 中读取并自动选中对应五行筛选条件
 
 ### 小程序文件结构

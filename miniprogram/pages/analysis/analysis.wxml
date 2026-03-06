@@ -39,7 +39,7 @@
     <!-- Four Pillars Card -->
     <view class="card pillars-card">
       <view class="card-title">
-        <text>四柱八字</text>
+        <text>四柱干支</text>
       </view>
 
       <view class="pillars">
@@ -237,14 +237,14 @@
 
     <!-- Disclaimer -->
     <view class="disclaimer">
-      <text class="disclaimer-text">* 本页面八字分析基于公历日期换算干支历法，采用寿星公式计算节气界限、五虎遁月及五鼠遁时推算四柱。喜用神判断依据日主强弱简易模型，仅供参考，不代表专业命理分析结果。节气交界日前后可能存在一日偏差。</text>
+      <text class="disclaimer-text">* 本页面生辰分析基于公历日期换算干支历法，采用寿星公式计算节气界限、五虎遁月及五鼠遁时推算四柱。喜用神判断依据日主强弱简易模型，仅供参考，不代表专业命理分析结果。节气交界日前后可能存在一日偏差。</text>
     </view>
 
   </block>
 
   <!-- Empty State -->
   <view class="empty-state" wx:if="{{!showResult}}">
-    <text class="empty-hint">选择出生日期和时辰，开始八字分析</text>
+    <text class="empty-hint">选择出生日期和时辰，开始生辰分析</text>
   </view>
 
 </scroll-view>

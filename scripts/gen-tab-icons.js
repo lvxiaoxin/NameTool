@@ -43,8 +43,8 @@ if (!fs.existsSync(OUTPUT_DIR)) {
 generateIcon('字', '#999999', 'tab-name.png');
 generateIcon('字', '#0071e3', 'tab-name-active.png');
 
-// 八字分析 tab
-generateIcon('八', '#999999', 'tab-bazi.png');
-generateIcon('八', '#0071e3', 'tab-bazi-active.png');
+// 生辰分析 tab
+generateIcon('辰', '#999999', 'tab-bazi.png');
+generateIcon('辰', '#0071e3', 'tab-bazi-active.png');
 
 console.log('Done! All icons generated.');

@@ -432,9 +432,9 @@ function analyzeComplete(pillars, dayGanIdx) {
     suggestion = '日主偏旺，喜用「' + xiyongNames.join('、') + '」来平衡。起名建议优先使用五行属「' + primaryXiyong + '」的字';
   } else {
     if (missing.length > 0) {
-      suggestion = '八字中和，五行缺「' + missing.join('、') + '」。起名建议补充五行属「' + primaryXiyong + '」的字';
+      suggestion = '五行中和，缺「' + missing.join('、') + '」。起名建议补充五行属「' + primaryXiyong + '」的字';
     } else {
-      suggestion = '八字五行较为均衡，起名可根据喜好选择';
+      suggestion = '五行较为均衡，起名可根据喜好选择';
     }
   }
 

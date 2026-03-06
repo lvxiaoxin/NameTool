@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/analysis/analysis"
+    "pages/analysis/analysis",
+    "pages/index/index"
   ],
   "window": {
     "navigationBarTitleText": "寻好字",
@@ -17,16 +17,16 @@
     "borderStyle": "white",
     "list": [
       {
+        "pagePath": "pages/analysis/analysis",
+        "text": "生辰分析",
+        "iconPath": "images/tab-bazi.png",
+        "selectedIconPath": "images/tab-bazi-active.png"
+      },
+      {
         "pagePath": "pages/index/index",
         "text": "寻字起名",
         "iconPath": "images/tab-name.png",
         "selectedIconPath": "images/tab-name-active.png"
-      },
-      {
-        "pagePath": "pages/analysis/analysis",
-        "text": "八字分析",
-        "iconPath": "images/tab-bazi.png",
-        "selectedIconPath": "images/tab-bazi-active.png"
       }
     ]
   },
