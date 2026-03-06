@@ -163,8 +163,10 @@
         </view>
         <view class="stroke-chars" wx:if="{{!item.collapsed}}">
           <view wx:for="{{item.chars}}" wx:for-item="c" wx:key="char"
-                class="char-card" data-char="{{c.char}}"
+                class="char-card {{c.selected ? 'char-selected' : ''}}"
+                data-char="{{c.char}}"
                 bindtap="onCharTap">
+            <text wx:if="{{c.selected}}" class="char-check">✓</text>
             <text class="char-text">{{c.char}}</text>
             <text class="char-pinyin">{{c.pinyin}}</text>
             <view class="char-meta">
@@ -184,7 +186,7 @@
 
     <!-- 底部提示 -->
     <view class="footer" wx:if="{{groups.length > 0}}">
-      <text class="footer-text">点击汉字可复制</text>
+      <text class="footer-text">{{selectionMode ? '点击汉字可选取/取消' : '点击汉字可复制'}}</text>
     </view>
   </block>
 </scroll-view>
@@ -192,4 +194,67 @@
 <!-- 回到顶部按钮 -->
 <view class="back-top {{showBackTop ? 'visible' : ''}}" bindtap="onBackTop">
   <text class="back-top-arrow">↑</text>
+</view>
+
+<!-- 选字底部栏 -->
+<view class="select-bar">
+  <view class="select-bar-toggle {{selectionMode ? 'active' : ''}}"
+        bindtap="onToggleSelectionMode">
+    {{selectionMode ? '退出选字起名' : '点击选字起名'}}
+  </view>
+
+  <block wx:if="{{selectionMode}}">
+    <scroll-view class="select-bar-chars" scroll-x
+                 wx:if="{{selectedChars.length > 0}}">
+      <view class="select-pills-wrap">
+        <view class="select-pill" wx:for="{{selectedChars}}" wx:key="char"
+              data-char="{{item.char}}" bindtap="onRemoveSelected">
+          <text class="pill-char">{{item.char}}</text>
+          <text class="pill-remove">x</text>
+        </view>
+      </view>
+    </scroll-view>
+    <text class="select-bar-hint" wx:else>
+      点击汉字来选取
+    </text>
+
+    <input class="surname-input" placeholder="姓"
+           value="{{surname}}" bindinput="onSurnameInput" />
+
+    <view class="btn-generate {{selectedChars.length > 0 && surname ? '' : 'disabled'}}"
+          bindtap="onShowNames">
+      组名
+    </view>
+  </block>
+</view>
+
+<!-- 名字结果面板 -->
+<view class="name-overlay {{showNamePanel ? 'visible' : ''}}"
+      bindtap="onCloseNames">
+  <view class="name-panel" catchtap="">
+    <view class="name-panel-header">
+      <text class="name-panel-title">
+        「{{surname}}」+ {{selectedChars.length}} 字组合
+      </text>
+      <text class="name-panel-count">
+        共 {{generatedNames.length}} 个名字
+      </text>
+      <view class="name-panel-close" bindtap="onCloseNames">x</view>
+    </view>
+
+    <scroll-view class="name-panel-body" scroll-y>
+      <view class="name-grid">
+        <view class="name-item" wx:for="{{generatedNames}}" wx:key="*this"
+              data-name="{{item}}" bindtap="onNameTap">
+          {{item}}
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="name-panel-footer">
+      <view class="btn-copy-all" bindtap="onCopyAllNames">
+        复制全部名字
+      </view>
+    </view>
+  </view>
 </view>

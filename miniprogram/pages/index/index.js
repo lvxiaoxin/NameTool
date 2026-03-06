@@ -44,6 +44,13 @@ Page({
     displayedCount: 0,
     scrollTop: 0,
     showBackTop: false,
+
+    // -- 选字组名 --
+    selectedChars: [],    // [{char, pinyin, wuxing, wuxingKey}]
+    surname: '',
+    generatedNames: [],
+    showNamePanel: false,
+    selectionMode: false,
   },
 
   _allChars: [],   // parsed objects (kept off data to avoid setData overhead)
@@ -51,6 +58,8 @@ Page({
   _debounce: null,
   _PAGE_SIZE: 500,
   _wuxingKeyMap: { '金': 'jin', '木': 'mu', '水': 'shui', '火': 'huo', '土': 'tu' },
+  _selectedSet: new Set(),
+  _MAX_SELECTED: 8,
 
   onLoad() {
     // Parse compact array format into objects
@@ -131,7 +140,12 @@ Page({
       toneOptions: reset(this.data.toneOptions),
       commonOptions: reset(this.data.commonOptions),
       luckyOptions: reset(this.data.luckyOptions),
+      selectedChars: [],
+      surname: '',
+      generatedNames: [],
+      showNamePanel: false,
     });
+    this._selectedSet.clear();
     this._applyFilters();
   },
 
@@ -142,14 +156,43 @@ Page({
 
   onCharTap(e) {
     const char = e.currentTarget.dataset.char;
-    if (char) {
+    if (!char) return;
+
+    // 非选字模式：保留原有复制行为
+    if (!this.data.selectionMode) {
       wx.setClipboardData({
         data: char,
-        success: () => {
-          wx.showToast({ title: `已复制「${char}」`, icon: 'success' });
-        },
+        success: () => wx.showToast({ title: `已复制「${char}」`, icon: 'success' }),
+      });
+      return;
+    }
+
+    // 选字模式：切换选中状态
+    if (this._selectedSet.has(char)) {
+      this._selectedSet.delete(char);
+      this.setData({
+        selectedChars: this.data.selectedChars.filter(c => c.char !== char),
+      });
+    } else {
+      if (this.data.selectedChars.length >= this._MAX_SELECTED) {
+        wx.showToast({ title: `最多选${this._MAX_SELECTED}个字`, icon: 'none' });
+        return;
+      }
+      const info = this._filtered.find(c => c.char === char)
+                || this._allChars.find(c => c.char === char);
+      if (!info) return;
+      this._selectedSet.add(char);
+      this.setData({
+        selectedChars: [...this.data.selectedChars, {
+          char: info.char,
+          pinyin: info.pinyin,
+          wuxing: info.wuxing,
+          wuxingKey: this._wuxingKeyMap[info.wuxing] || '',
+        }],
       });
     }
+    this._refreshSelectedState();
+    this._updateGeneratedNames();
   },
 
   onBackTop() {
@@ -221,6 +264,105 @@ Page({
     this._renderPage(0);
   },
 
+  // ---- 选字组名 ----
+
+  onToggleSelectionMode() {
+    const entering = !this.data.selectionMode;
+    if (entering) {
+      this.setData({ selectionMode: true });
+    } else {
+      // 退出时清空已选
+      this._selectedSet.clear();
+      this.setData({
+        selectionMode: false,
+        selectedChars: [],
+        surname: '',
+        generatedNames: [],
+        showNamePanel: false,
+      });
+      this._refreshSelectedState();
+    }
+  },
+
+  onRemoveSelected(e) {
+    const char = e.currentTarget.dataset.char;
+    this._selectedSet.delete(char);
+    this.setData({
+      selectedChars: this.data.selectedChars.filter(c => c.char !== char),
+    });
+    this._refreshSelectedState();
+    this._updateGeneratedNames();
+  },
+
+  onSurnameInput(e) {
+    let val = e.detail.value.trim();
+    if (val.length > 2) val = val.slice(0, 2);
+    this.setData({ surname: val });
+    this._updateGeneratedNames();
+  },
+
+  onShowNames() {
+    if (!this.data.generatedNames.length) return;
+    this.setData({ showNamePanel: true });
+  },
+
+  onCloseNames() {
+    this.setData({ showNamePanel: false });
+  },
+
+  onNameTap(e) {
+    const name = e.currentTarget.dataset.name;
+    if (!name) return;
+    wx.setClipboardData({
+      data: name,
+      success: () => wx.showToast({ title: `已复制「${name}」`, icon: 'success' }),
+    });
+  },
+
+  onCopyAllNames() {
+    const all = this.data.generatedNames.join('\n');
+    wx.setClipboardData({
+      data: all,
+      success: () => wx.showToast({ title: '已复制全部名字', icon: 'success' }),
+    });
+  },
+
+  _updateGeneratedNames() {
+    const { selectedChars, surname } = this.data;
+    if (!surname || selectedChars.length === 0) {
+      this.setData({ generatedNames: [] });
+      return;
+    }
+    const chars = selectedChars.map(c => c.char);
+    const names = [];
+    // 单字名: 姓 + A
+    for (const c of chars) names.push(surname + c);
+    // 双字名: 姓 + AB (排列)
+    if (chars.length >= 2) {
+      for (let i = 0; i < chars.length; i++) {
+        for (let j = 0; j < chars.length; j++) {
+          if (i !== j) names.push(surname + chars[i] + chars[j]);
+        }
+      }
+    }
+    this.setData({ generatedNames: names });
+  },
+
+  _refreshSelectedState() {
+    const updates = {};
+    this.data.groups.forEach((group, gi) => {
+      group.chars.forEach((c, ci) => {
+        const shouldBe = this._selectedSet.has(c.char);
+        if (c.selected !== shouldBe) {
+          updates[`groups[${gi}].chars[${ci}].selected`] = shouldBe;
+        }
+      });
+    });
+    if (Object.keys(updates).length > 0) {
+      this.setData(updates);
+    }
+  },
+
   _renderPage(startIdx) {
     const PAGE = this._PAGE_SIZE;
     const slice = this._filtered.slice(startIdx, startIdx + PAGE);
@@ -236,6 +378,7 @@ Page({
         wuxingKey: this._wuxingKeyMap[c.wuxing] || '',
         radical: c.radical || '',
         structLabel: c.structure ? c.structure.replace('结构', '') : '',
+        selected: this._selectedSet.has(c.char),
       });
     });
 
