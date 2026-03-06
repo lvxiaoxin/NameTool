@@ -24,44 +24,72 @@
 - **AppID**：`wx1b05b9761826a203`
 - **项目名**：寻好字
 - **基础库**：3.3.4
-- **架构**：数据内嵌本地（`miniprogram/data/chars.js`），纯前端筛选，无网络依赖
+- **架构**：双 Tab 架构，原生 tabBar；数据内嵌本地，纯前端筛选，无网络依赖
 - **数据格式**：紧凑数组 `[char, pinyin, _py, _tone, wuxing, strokes, radical, structure, common, lucky]`
 - **分页渲染**：每批 500 字，防止 DOM 节点超限（~16K 限制）
 - **project.config.json**：位于项目根目录，`miniprogramRoot` 指向 `miniprogram/`
+
+### Tab 架构
+
+- **Tab 1「寻字起名」**（`pages/index/index`）：汉字多维筛选 + 选字组名功能
+- **Tab 2「八字分析」**（`pages/analysis/analysis`）：输入生辰→四柱八字→五行分布→喜用神→起名建议
+- **跨 Tab 传参**：八字分析的喜用神通过 `app.globalData.suggestedWuxing`（数组）传递，寻字起名页 `onShow` 中读取并自动选中对应五行筛选条件
 
 ### 小程序文件结构
 
 ```
 project.config.json          # 项目配置（根目录）
 miniprogram/
-  app.js                     # 全局入口（无外部依赖）
-  app.json                   # 页面路由、窗口配置
+  app.js                     # 全局入口，globalData 跨 tab 传参
+  app.json                   # 页面路由、tabBar、窗口配置
   app.wxss                   # 全局样式
   data/chars.js              # 内嵌汉字数据（14,387 条紧凑数组）
   utils/tone.js              # 拼音声调处理工具
+  utils/bazi.js              # 八字计算核心（四柱、十神、喜用神、纳音）
+  images/                    # Tab 图标（tab-name/tab-bazi，各含普通/选中态）
   pages/index/
-    index.js                 # 主页逻辑（本地筛选 + 分页渲染）
-    index.wxml               # 主页模板
-    index.wxss               # 主页样式
+    index.js                 # 寻字起名逻辑（筛选 + 分页 + 选字组名）
+    index.wxml               # 寻字起名模板
+    index.wxss               # 寻字起名样式
+    index.json               # 页面配置
+  pages/analysis/
+    analysis.js              # 八字分析逻辑
+    analysis.wxml            # 八字分析模板
+    analysis.wxss            # 八字分析样式
+    analysis.json            # 页面配置
 ```
 
-### 小程序筛选维度
+### 寻字起名页（index）
 
-1. **汉字**：直接输入汉字搜索
-2. **五行**：chip 多选（金/木/水/火/土），CSS 用拼音类名（wuxing-jin 等）
-3. **笔画**：范围输入（min/max）
-4. **结构**：chip 多选（从数据动态生成）
-5. **部首**：下拉选择（从数据动态生成）
-6. **拼音**：文本输入，自动去声调前缀匹配
-7. **声调**：chip 多选（1-4 声）
-8. **常用**：chip 选择
-9. **吉凶**：chip 选择
+**筛选维度**：汉字、五行（chip 多选）、笔画（范围）、结构（chip 多选）、部首（下拉）、拼音（文本）、声调（chip 多选）、常用、吉凶
+
+**选字组名**：底部栏切换选字模式，点击汉字选取（最多 8 字），输入姓氏后生成单字名和双字名排列组合
+
+**布局**：`page-wrapper` flex 列布局（`height: windowHeight`），scroll-view（`flex:1`）+ select-bar（flex child），避免 `position: fixed` 与原生 tabBar 冲突
+
+### 八字分析页（analysis）
+
+**输入**：公历日期（date picker）+ 时辰（selector picker，12 时辰）
+
+**计算**（`utils/bazi.js`）：
+- 四柱：年柱（立春为界）、月柱（节气为月界 + 五虎遁月）、日柱（儒略日）、时柱（五鼠遁时）
+- 节气：寿星公式多项式近似法，覆盖 1900-2100 年
+- 十神：日主与其他天干的生克关系
+- 日主强弱：得令/失令 + 扶助/耗泄加权评分
+- 喜用神/忌神：基于日主强弱判定
+- 纳音：六十甲子纳音五行
+- 地支藏干：每个地支的本气/中气/余气
+
+**展示**：四柱卡片（天干地支+五行色+十神标签+藏干）、五行分布条形图（缺/弱警告）、命理分析（日主/强弱/月令/喜用神/忌神/纳音）、起名建议（可跳转寻字起名并预选喜用神五行）
+
+**免责声明**：页面底部注明算法依据和仅供参考
 
 ### WXSS 注意事项
 
 - **禁止非 ASCII 字符**：WXSS 编译器不支持任何非 ASCII 字节（包括注释和选择器）
-- 五行用拼音类名：`.wuxing-jin`、`.tag-wuxing-jin` 等
+- 五行用拼音类名：`.wuxing-jin`、`.wx-jin`、`.tag-wuxing-jin` 等
 - JS 中通过 `_wuxingKeyMap` 和 `wuxingKey` 字段映射
+- 寻字起名页使用 flex 布局而非 fixed 定位来放置底部栏，避免与原生 tabBar 冲突
 
 ## 部署信息
 
@@ -90,12 +118,16 @@ index.html                   # Web 前端页面（全部 CSS/JS 内联）
 crawl.js                     # 三阶段爬虫（五行→结构→部首）
 enrich.js                    # 数据增补脚本（常用字/吉凶）
 deploy.sh                    # Azure VM 自动化部署脚本
+scripts/gen-tab-icons.js     # Tab 图标生成脚本（需 canvas 依赖）
 data/characters.json         # 爬取的汉字数据 JSON（原始格式）
 project.config.json          # 微信小程序项目配置
 miniprogram/                 # 微信小程序代码
   data/chars.js              # 内嵌数据（紧凑数组，~690KB）
   utils/tone.js              # 拼音声调处理
-  pages/index/               # 主页面（筛选 + 结果展示）
+  utils/bazi.js              # 八字计算核心模块
+  images/                    # Tab 图标 PNG
+  pages/index/               # 寻字起名（筛选 + 选字组名）
+  pages/analysis/            # 八字分析
 package.json                 # 项目配置
 ```
 
@@ -139,14 +171,6 @@ package.json                 # 项目配置
 - 部首总页：`hanzi-bushou.html`
 - 部首详情：`hanzi-bushou-{code}.html`
 - 汉字详情：`hanzi-wuxing-hanzi-{id}.html` 或 `hanzi-xi{id}.html`
-
-## 前端筛选维度
-
-1. **五行**：chip 多选（金/木/水/火/土）
-2. **笔画**：范围输入（min/max）
-3. **部首**：下拉选择
-4. **结构**：chip 多选（12 种）
-5. **拼音**：文本输入，自动去声调匹配
 
 ## 编码约定
 
