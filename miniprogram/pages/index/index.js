@@ -44,6 +44,8 @@ Page({
     displayedCount: 0,
     scrollTop: 0,
     showBackTop: false,
+    tabBarHeight: 0,
+    windowHeight: 0,
 
     // -- 选字组名 --
     selectedChars: [],    // [{char, pinyin, wuxing, wuxingKey}]
@@ -62,6 +64,13 @@ Page({
   _MAX_SELECTED: 8,
 
   onLoad() {
+    // 计算 tabBar 高度（内容区 48px + 底部安全区）
+    const sysInfo = wx.getSystemInfoSync();
+    const safeBottom = sysInfo.screenHeight - sysInfo.safeArea.bottom;
+    const tabBarHeight = 48 + safeBottom;
+    const windowHeight = sysInfo.windowHeight;
+    this.setData({ tabBarHeight, windowHeight });
+
     // Parse compact array format into objects
     this._allChars = RAW.map(r => ({
       char: r[0], pinyin: r[1], _py: r[2], _tone: r[3],
@@ -72,6 +81,22 @@ Page({
     this._initFilters();
     this._applyFilters();
     this.setData({ loading: false });
+  },
+
+  onShow() {
+    // 接收八字分析推荐的五行（数组）
+    const app = getApp();
+    const suggested = app.globalData.suggestedWuxing;
+    if (suggested && suggested.length > 0) {
+      app.globalData.suggestedWuxing = [];
+      const suggestedSet = new Set(suggested);
+      const wuxingOptions = this.data.wuxingOptions.map(o => ({
+        ...o,
+        active: suggestedSet.has(o.value),
+      }));
+      this.setData({ wuxingOptions });
+      this._applyFilters();
+    }
   },
 
   _initFilters() {

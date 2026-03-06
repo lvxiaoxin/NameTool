@@ -1,15 +1,24 @@
 /* pages/index/index.wxss */
 
+/* Flex column: scroll-view fills remaining space, select-bar at bottom */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .container {
+  flex: 1;
+  min-height: 0;
   padding: 24rpx 20rpx;
-  height: 100vh;
 }
 
 /* -- Back to top -- */
+/* bottom is set via inline style to account for tabBar height */
 .back-top {
   position: fixed;
   right: 40rpx;
-  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  bottom: 120px;
   width: 80rpx;
   height: 80rpx;
   border-radius: 50%;
@@ -344,25 +353,16 @@
   font-weight: 700;
 }
 
-/* -- Container bottom padding for select bar -- */
-.container {
-  padding-bottom: calc(100rpx + env(safe-area-inset-bottom));
-}
-
 /* -- Selection bottom bar -- */
+/* Flex child at bottom of page-wrapper, no fixed positioning */
 .select-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex-shrink: 0;
   background: #ffffff;
   border-top: 1rpx solid #e0e0e0;
   display: flex;
   align-items: center;
   padding: 16rpx 20rpx;
-  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
   gap: 16rpx;
-  z-index: 200;
   box-shadow: 0 -2rpx 10rpx rgba(0,0,0,0.08);
   overflow: hidden;
 }

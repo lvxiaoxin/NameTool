@@ -1,0 +1,250 @@
+<!--pages/analysis/analysis.wxml-->
+<scroll-view class="container" scroll-y enhanced show-scrollbar="{{false}}">
+
+  <!-- Input Card -->
+  <view class="card input-card">
+    <view class="card-title">
+      <text>输入生辰信息</text>
+    </view>
+
+    <view class="form-row">
+      <text class="form-label">出生日期</text>
+      <picker class="form-picker" mode="date" start="1920-01-01" end="2100-12-31"
+              value="{{dateValue}}" bindchange="onDateChange">
+        <view class="picker-value {{dateValue ? '' : 'placeholder'}}">
+          {{dateValue || '请选择日期'}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-row">
+      <text class="form-label">出生时辰</text>
+      <picker class="form-picker" mode="selector" range="{{hourOptions}}"
+              value="{{hourIndex}}" bindchange="onHourChange">
+        <view class="picker-value">
+          {{hourOptions[hourIndex]}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="btn-row">
+      <view class="btn-analyze" bindtap="onAnalyze">开始分析</view>
+      <view class="btn-reset-small" wx:if="{{showResult}}" bindtap="onReset">重置</view>
+    </view>
+  </view>
+
+  <!-- Result Section -->
+  <block wx:if="{{showResult && pillars && analysis}}">
+
+    <!-- Four Pillars Card -->
+    <view class="card pillars-card">
+      <view class="card-title">
+        <text>四柱八字</text>
+      </view>
+
+      <view class="pillars">
+        <!-- Year -->
+        <view class="pillar">
+          <text class="pillar-label">年柱</text>
+          <text class="ten-god-label">{{pillars.year.tenGod}}</text>
+          <view class="pillar-box">
+            <text class="gz-cell wuxing-bg-{{pillars.year.ganWuxingKey}}">{{pillars.year.gan}}</text>
+            <text class="gz-cell wuxing-bg-{{pillars.year.zhiWuxingKey}}">{{pillars.year.zhi}}</text>
+          </view>
+          <view class="pillar-wuxing">
+            <text class="wx-tag wx-{{pillars.year.ganWuxingKey}}">{{pillars.year.ganWuxing}}</text>
+            <text class="wx-tag wx-{{pillars.year.zhiWuxingKey}}">{{pillars.year.zhiWuxing}}</text>
+          </view>
+          <text class="nayin-text">{{pillars.year.nayin.name}}</text>
+        </view>
+
+        <!-- Month -->
+        <view class="pillar">
+          <text class="pillar-label">月柱</text>
+          <text class="ten-god-label">{{pillars.month.tenGod}}</text>
+          <view class="pillar-box">
+            <text class="gz-cell wuxing-bg-{{pillars.month.ganWuxingKey}}">{{pillars.month.gan}}</text>
+            <text class="gz-cell wuxing-bg-{{pillars.month.zhiWuxingKey}}">{{pillars.month.zhi}}</text>
+          </view>
+          <view class="pillar-wuxing">
+            <text class="wx-tag wx-{{pillars.month.ganWuxingKey}}">{{pillars.month.ganWuxing}}</text>
+            <text class="wx-tag wx-{{pillars.month.zhiWuxingKey}}">{{pillars.month.zhiWuxing}}</text>
+          </view>
+        </view>
+
+        <!-- Day -->
+        <view class="pillar">
+          <text class="pillar-label">日柱</text>
+          <text class="ten-god-label day-master-tag">日主</text>
+          <view class="pillar-box day-pillar-box">
+            <text class="gz-cell wuxing-bg-{{pillars.day.ganWuxingKey}}">{{pillars.day.gan}}</text>
+            <text class="gz-cell wuxing-bg-{{pillars.day.zhiWuxingKey}}">{{pillars.day.zhi}}</text>
+          </view>
+          <view class="pillar-wuxing">
+            <text class="wx-tag wx-{{pillars.day.ganWuxingKey}}">{{pillars.day.ganWuxing}}</text>
+            <text class="wx-tag wx-{{pillars.day.zhiWuxingKey}}">{{pillars.day.zhiWuxing}}</text>
+          </view>
+        </view>
+
+        <!-- Hour -->
+        <view class="pillar" wx:if="{{pillars.hour}}">
+          <text class="pillar-label">时柱</text>
+          <text class="ten-god-label">{{pillars.hour.tenGod}}</text>
+          <view class="pillar-box">
+            <text class="gz-cell wuxing-bg-{{pillars.hour.ganWuxingKey}}">{{pillars.hour.gan}}</text>
+            <text class="gz-cell wuxing-bg-{{pillars.hour.zhiWuxingKey}}">{{pillars.hour.zhi}}</text>
+          </view>
+          <view class="pillar-wuxing">
+            <text class="wx-tag wx-{{pillars.hour.ganWuxingKey}}">{{pillars.hour.ganWuxing}}</text>
+            <text class="wx-tag wx-{{pillars.hour.zhiWuxingKey}}">{{pillars.hour.zhiWuxing}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- Cang Gan -->
+      <view class="canggan-section">
+        <text class="canggan-title">地支藏干</text>
+        <view class="canggan-row">
+          <view class="canggan-col">
+            <view class="canggan-tags">
+              <text wx:for="{{pillars.year.cangGan}}" wx:key="gan"
+                    class="wx-tag wx-{{item.wuxingKey}}">{{item.gan}}</text>
+            </view>
+          </view>
+          <view class="canggan-col">
+            <view class="canggan-tags">
+              <text wx:for="{{pillars.month.cangGan}}" wx:key="gan"
+                    class="wx-tag wx-{{item.wuxingKey}}">{{item.gan}}</text>
+            </view>
+          </view>
+          <view class="canggan-col">
+            <view class="canggan-tags">
+              <text wx:for="{{pillars.day.cangGan}}" wx:key="gan"
+                    class="wx-tag wx-{{item.wuxingKey}}">{{item.gan}}</text>
+            </view>
+          </view>
+          <view class="canggan-col" wx:if="{{pillars.hour}}">
+            <view class="canggan-tags">
+              <text wx:for="{{pillars.hour.cangGan}}" wx:key="gan"
+                    class="wx-tag wx-{{item.wuxingKey}}">{{item.gan}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Wuxing Distribution Card -->
+    <view class="card wuxing-card">
+      <view class="card-title">
+        <text>五行分布</text>
+      </view>
+
+      <view class="wuxing-bars">
+        <view class="wuxing-row" wx:for="{{analysis.wuxingList}}" wx:key="name">
+          <text class="wuxing-name wx-color-{{item.key}}">{{item.name}}</text>
+          <view class="bar-track">
+            <view class="bar-fill bar-fill-{{item.key}} {{item.status === 'missing' ? 'bar-missing' : ''}}"
+                  style="width: {{item.percent}}%"></view>
+          </view>
+          <text class="wuxing-count {{item.status === 'missing' ? 'count-missing' : ''}}">{{item.count}}</text>
+        </view>
+      </view>
+
+      <view class="analysis-alerts" wx:if="{{analysis.missing.length > 0 || analysis.weak.length > 0}}">
+        <view class="alert alert-warning" wx:if="{{analysis.missing.length > 0}}">
+          <text class="alert-icon">!</text>
+          <text>五行缺「{{analysis.missing[0]}}」{{analysis.missing.length > 1 ? '、「' + analysis.missing[1] + '」' : ''}}</text>
+        </view>
+        <view class="alert alert-info" wx:if="{{analysis.weak.length > 0}}">
+          <text class="alert-icon">i</text>
+          <text>「{{analysis.weak[0]}}」{{analysis.weak.length > 1 ? '、「' + analysis.weak[1] + '」' : ''}}偏弱</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Day Master & Xiyong Card -->
+    <view class="card master-card">
+      <view class="card-title">
+        <text>命理分析</text>
+      </view>
+
+      <!-- Day Master -->
+      <view class="info-row">
+        <text class="info-label">日主</text>
+        <view class="info-value">
+          <text class="wx-tag wx-{{analysis.dayMaster.wuxingKey}}">{{analysis.dayMaster.gan}}</text>
+          <text class="info-desc">五行属「{{analysis.dayMaster.wuxing}}」</text>
+        </view>
+      </view>
+
+      <!-- Strength -->
+      <view class="info-row">
+        <text class="info-label">日主强弱</text>
+        <view class="info-value">
+          <text class="strength-tag strength-{{analysis.strength}}">{{analysis.strengthLabel}}</text>
+          <text class="info-desc">扶助{{analysis.support}} / 耗泄{{analysis.drain}}</text>
+        </view>
+      </view>
+
+      <!-- Season -->
+      <view class="info-row">
+        <text class="info-label">月令</text>
+        <view class="info-value">
+          <text class="info-desc">{{analysis.seasonDesc}}</text>
+        </view>
+      </view>
+
+      <!-- Xiyong -->
+      <view class="info-row">
+        <text class="info-label">喜用神</text>
+        <view class="info-value">
+          <text wx:for="{{analysis.xiyongNames}}" wx:key="*this"
+                class="wx-tag wx-{{item === '金' ? 'jin' : item === '木' ? 'mu' : item === '水' ? 'shui' : item === '火' ? 'huo' : 'tu'}}">{{item}}</text>
+        </view>
+      </view>
+
+      <!-- Ji -->
+      <view class="info-row">
+        <text class="info-label">忌神</text>
+        <view class="info-value">
+          <text wx:for="{{analysis.jiNames}}" wx:key="*this"
+                class="wx-tag-outline wx-outline-{{item === '金' ? 'jin' : item === '木' ? 'mu' : item === '水' ? 'shui' : item === '火' ? 'huo' : 'tu'}}">{{item}}</text>
+        </view>
+      </view>
+
+      <!-- Nayin -->
+      <view class="info-row">
+        <text class="info-label">年柱纳音</text>
+        <view class="info-value">
+          <text class="wx-tag wx-{{pillars.year.nayin.wuxingKey}}">{{pillars.year.nayin.wuxing}}</text>
+          <text class="info-desc">{{pillars.year.nayin.name}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Suggestion Card -->
+    <view class="card suggest-card">
+      <view class="card-title">
+        <text>起名建议</text>
+      </view>
+      <view class="suggestion-text">
+        <text>{{analysis.suggestion}}</text>
+      </view>
+      <view class="btn-go-naming" wx:if="{{analysis.xiyongNames.length > 0}}" bindtap="onGoToNaming">
+        去选「{{analysis.xiyongNames[0]}}{{analysis.xiyongNames.length > 1 ? '、' + analysis.xiyongNames[1] : ''}}」属性的字起名
+      </view>
+    </view>
+
+    <!-- Disclaimer -->
+    <view class="disclaimer">
+      <text class="disclaimer-text">* 本页面八字分析基于公历日期换算干支历法，采用寿星公式计算节气界限、五虎遁月及五鼠遁时推算四柱。喜用神判断依据日主强弱简易模型，仅供参考，不代表专业命理分析结果。节气交界日前后可能存在一日偏差。</text>
+    </view>
+
+  </block>
+
+  <!-- Empty State -->
+  <view class="empty-state" wx:if="{{!showResult}}">
+    <text class="empty-hint">选择出生日期和时辰，开始八字分析</text>
+  </view>
+
+</scroll-view>

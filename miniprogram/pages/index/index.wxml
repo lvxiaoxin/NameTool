@@ -1,4 +1,6 @@
 <!--pages/index/index.wxml-->
+<view class="page-wrapper" style="height:{{windowHeight}}px">
+
 <scroll-view class="container" scroll-y enhanced show-scrollbar="{{false}}"
   scroll-top="{{scrollTop}}" scroll-with-animation
   bindscroll="onScroll">
@@ -191,12 +193,7 @@
   </block>
 </scroll-view>
 
-<!-- 回到顶部按钮 -->
-<view class="back-top {{showBackTop ? 'visible' : ''}}" bindtap="onBackTop">
-  <text class="back-top-arrow">↑</text>
-</view>
-
-<!-- 选字底部栏 -->
+<!-- 选字底部栏 (flex child, not fixed) -->
 <view class="select-bar">
   <view class="select-bar-toggle {{selectionMode ? 'active' : ''}}"
         bindtap="onToggleSelectionMode">
@@ -226,6 +223,14 @@
       组名
     </view>
   </block>
+</view>
+
+</view><!-- end page-wrapper -->
+
+<!-- 回到顶部按钮 (fixed, outside wrapper) -->
+<view class="back-top {{showBackTop ? 'visible' : ''}}" bindtap="onBackTop"
+      style="bottom:{{tabBarHeight + 70}}px">
+  <text class="back-top-arrow">↑</text>
 </view>
 
 <!-- 名字结果面板 -->
